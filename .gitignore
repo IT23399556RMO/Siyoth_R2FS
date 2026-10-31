@@ -1,0 +1,12 @@
+# created by virtualenv automatically
+
+__pycache__
+*.pyc
+
+.venv/
+venv/
+.idea/
+
+.env
+
+desktop.ini
