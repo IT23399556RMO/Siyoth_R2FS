@@ -2,6 +2,12 @@
 
 A robust, Python-based synchronization service that monitors a local Windows file system and instantly mirrors changes to a Cloudflare R2 cloud bucket. Designed as a highly performant alternative to legacy FUSE mounts, this toolset supports workflows ranging from simple one-way uploads to fully automated, bi-directional synchronization.
 
+## Why This Approach?
+
+While standard tools like `s3fs-fuse` can mount cloud storage as a local drive, they introduce severe network latency because every local file interaction requires an internet round-trip. This project resolves that bottleneck by utilizing a local Python service. 
+
+By actively monitoring a local folder using `watchdog` and utilizing the `boto3` AWS SDK, this architecture ensures native SSD read/write speeds while perfectly syncing additions, edits, movements, and deletions to the Cloudflare R2 bucket in the background.
+
 ## Features
 
 * **Real-Time Local Monitoring:** Utilizes the `watchdog` library to capture file creations, modifications, renames, and deletions instantly on the local disk.
@@ -9,9 +15,18 @@ A robust, Python-based synchronization service that monitors a local Windows fil
 * **Conflict Resolution:** Employs active file locking, pending upload sets, and retry loops to prevent infinite upload/download cycles and safely handle large, incomplete file copies.
 * **True Mirror Logic:** Accurately maps local folder movements and deletions to the cloud (and vice versa) to prevent orphan files and data duplication.
 
-## Prerequisites
+## Technologies Used
 
-Ensure you have Python installed on your system, then install the required dependencies:
+* **Python 3:** The core execution environment for background services.
+* **Watchdog (`pip install watchdog`):** Handles real-time monitoring of the local Windows file system to capture user interactions instantly.
+* **Boto3 (`pip install boto3`):** The standard AWS SDK for Python, utilized to communicate directly with the S3-compatible Cloudflare R2 API.
+* **Python-Dotenv (`pip install python-dotenv`):** Allows the script to securely load environmental variables and secret keys, keeping credentials out of the source code.
+
+## Prerequisites & Project Setup
+
+1. Ensure you have Python installed on your system.
+2. Initialize the project in your standard user directory on your primary SSD (e.g., `C:\Users\<Username>\PyCharmProjects\r2-sync-service`) to ensure native read/write permissions.
+3. Install the required dependencies:
 
 ```bash
 pip install watchdog boto3 python-dotenv
@@ -19,7 +34,7 @@ pip install watchdog boto3 python-dotenv
 
 ## Configuration
 
-Create a `.env` file in the root directory of the project to securely store your Cloudflare R2 credentials and environment variables:
+Create a `.env` file in the root directory of the project to securely store your Cloudflare R2 credentials and environment variables. Do not use quotes around the values:
 
 ```env
 R2_ACCOUNT_ID=your_account_id_string
